@@ -3,6 +3,8 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --gradient-bg: linear-gradient(180deg, #fafaf9 0%, #f5f5f0 100%);
+  --gradient-bg-dark: linear-gradient(180deg, #1a1a1a 0%, #2a2a2a 100%);
 }
 
 @theme inline {
@@ -20,7 +22,59 @@
 }
 
 body {
-  background: var(--background);
+  background: var(--gradient-bg);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  min-height: 100vh;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background: var(--gradient-bg-dark);
+  }
+}
+
+/* 自定义阴影类 */
+@utility shadow-soft {
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05), 0 2px 8px -2px rgba(0, 0, 0, 0.03);
+}
+
+@utility shadow-gentle {
+  box-shadow: 0 8px 30px -4px rgba(0, 0, 0, 0.08), 0 4px 12px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* 渐变背景悬停效果 */
+@utility hover-bg-subtle {
+  @hover {
+    background-color: rgba(255, 255, 255, 0.3);
+  }
+}
+
+@utility hover-bg-subtle-dark {
+  @hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* 卡片和内容容器背景 */
+@utility bg-content {
+  background-color: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(8px);
+}
+
+@utility bg-content-dark {
+  background-color: rgba(30, 30, 30, 0.6);
+  backdrop-filter: blur(8px);
+}
+
+/* 暗色模式样式 */
+@media (prefers-color-scheme: dark) {
+  .hover-bg-subtle:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .bg-content {
+    background-color: rgba(30, 30, 30, 0.6);
+  }
 }

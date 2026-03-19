@@ -1,0 +1,173 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// 用户表 - 必须包含 Token 字段用于存储和刷新用户凭证
+model User {
+  id                String         @id @default(cuid())
+  secondmeUserId    String         @unique @map("secondme_user_id")
+  accessToken       String         @map("access_token")
+  refreshToken      String         @map("refresh_token")
+  tokenExpiresAt    DateTime       @map("token_expires_at")
+  name              String?
+  avatar            String?
+  email             String?
+  bio               String?
+
+  // 人生规划相关
+  lifePlans         LifePlan[]
+  knowledgeFrameworks KnowledgeFramework[]
+  notes             Note[]
+  matchesAsUser1    Match[]        @relation("User1Matches")
+  matchesAsUser2    Match[]        @relation("User2Matches")
+  conversations     Conversation[]
+
+  createdAt         DateTime       @default(now()) @map("created_at")
+  updatedAt         DateTime       @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+// 人生规划表 - 1/5/10年目标
+model LifePlan {
+  id                String         @id @default(cuid())
+  userId            String         @map("user_id")
+  title             String
+  description       String?
+  year              Int            // 1, 5, 10
+  category          String         // 职业、学习、健康、人际关系等
+  goals             Json           // JSON格式的目标列表
+  milestones        Json           // JSON格式的里程碑
+  progress          Float          @default(0) // 进度百分比
+  isPublic          Boolean        @default(false) @map("is_public")
+  startDate         DateTime       @map("start_date")
+  endDate           DateTime       @map("end_date")
+
+  user              User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt         DateTime       @default(now()) @map("created_at")
+  updatedAt         DateTime       @updatedAt @map("updated_at")
+
+  @@map("life_plans")
+  @@index([userId])
+  @@index([userId, year])
+}
+
+// 知识框架表
+model KnowledgeFramework {
+  id                String         @id @default(cuid())
+  userId            String         @map("user_id")
+  title             String
+  description       String?
+  category          String         // 领域分类
+  content           Json           // 知识框架内容
+  tags              Json           // 标签数组
+  isPublic          Boolean        @default(false) @map("is_public")
+  viewCount         Int            @default(0) @map("view_count")
+  likeCount         Int            @default(0) @map("like_count")
+
+  user              User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt         DateTime       @default(now()) @map("created_at")
+  updatedAt         DateTime       @updatedAt @map("updated_at")
+
+  @@map("knowledge_frameworks")
+  @@index([userId])
+  @@index([category])
+}
+
+// 用户匹配表（人生搭子）
+model Match {
+  id                String         @id @default(cuid())
+  user1Id           String         @map("user1_id")
+  user2Id           String         @map("user2_id")
+  matchScore        Float          @default(0) @map("match_score")
+  matchReason       String?        @map("match_reason") // 匹配原因
+  status            String         @default("pending") // pending, matched, rejected
+  lastInteractionAt DateTime?      @map("last_interaction_at")
+
+  user1             User           @relation("User1Matches", fields: [user1Id], references: [id], onDelete: Cascade)
+  user2             User           @relation("User2Matches", fields: [user2Id], references: [id], onDelete: Cascade)
+  conversations     Conversation[]
+
+  createdAt         DateTime       @default(now()) @map("created_at")
+  updatedAt         DateTime       @updatedAt @map("updated_at")
+
+  @@map("matches")
+  @@unique([user1Id, user2Id])
+  @@index([user1Id])
+  @@index([user2Id])
+  @@index([user1Id, user2Id])
+}
+
+// 对话记录表
+model Conversation {
+  id                String         @id @default(cuid())
+  userId            String         @map("user_id")
+  matchId           String?        @map("match_id")
+  type              String         // personal, match
+  title             String?
+  lastMessage       String?
+  lastMessageAt     DateTime       @map("last_message_at")
+  unreadCount       Int            @default(0) @map("unread_count")
+
+  user              User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  match             Match?         @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  messages          Message[]
+
+  createdAt         DateTime       @default(now()) @map("created_at")
+  updatedAt         DateTime       @updatedAt @map("updated_at")
+
+  @@map("conversations")
+  @@index([userId])
+  @@index([matchId])
+}
+
+// 消息表
+model Message {
+  id                String         @id @default(cuid())
+  conversationId    String         @map("conversation_id")
+  senderId          String         @map("sender_id")
+  content           String
+  contentType       String         @default("text") @map("content_type") // text, image, file
+  isRead            Boolean        @default(false) @map("is_read")
+
+  conversation      Conversation   @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  createdAt         DateTime       @default(now()) @map("created_at")
+  updatedAt         DateTime       @updatedAt @map("updated_at")
+
+  @@map("messages")
+  @@index([conversationId])
+  @@index([senderId])
+  @@index([conversationId, createdAt])
+}
+
+// 笔记表
+model Note {
+  id                String         @id @default(cuid())
+  userId            String         @map("user_id")
+  title             String
+  content           String
+  type              String         // 规划记录, 学习反思, 知识框架, 交流记录
+  tags              Json           // 标签数组
+  isPublic          Boolean        @default(false) @map("is_public")
+
+  user              User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt         DateTime       @default(now()) @map("created_at")
+  updatedAt         DateTime       @updatedAt @map("updated_at")
+
+  @@map("notes")
+  @@index([userId])
+  @@index([userId, type])
+}

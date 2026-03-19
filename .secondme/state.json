@@ -1,0 +1,55 @@
+{
+  "app": {
+    "name": "secondme-app",
+    "client_id": "75fd5283-eefc-46fa-9d3b-8605690075ad"
+  },
+  "api": {
+    "base_url": "https://api.mindverse.com/gate/lab",
+    "endpoints": {
+      "oauth": {
+        "authorize": "https://go.second.me/oauth/",
+        "token": "https://api.mindverse.com/gate/lab/api/oauth/token/code",
+        "refresh": "https://api.mindverse.com/gate/lab/api/oauth/token/refresh"
+      },
+      "user": {
+        "info": "/api/secondme/user/info",
+        "shades": "/api/secondme/user/shades",
+        "search": "/api/secondme/users/search"
+      },
+      "chat": {
+        "send": "/api/secondme/chat"
+      },
+      "note": {
+        "add": "/api/secondme/note/add",
+        "update": "/api/secondme/note/update",
+        "delete": "/api/secondme/note/delete",
+        "list": "/api/secondme/note/list"
+      },
+      "act": {
+        "judge": "/api/secondme/act"
+      }
+    },
+    "timeouts": {
+      "access_token": 7200,
+      "refresh_token": 2592000
+    }
+  },
+  "docs": {
+    "quickstart": "https://docs.second.me/quickstart",
+    "oauth2": "https://docs.second.me/oauth2",
+    "api_reference": "https://docs.second.me/api",
+    "errors": "https://docs.second.me/errors"
+  },
+  "modules": {
+    "auth": true,
+    "profile": true,
+    "chat": true,
+    "note": true
+  },
+  "scopes": [
+    "user.info",
+    "user.info.shades",
+    "chat",
+    "note.add"
+  ]
+}
