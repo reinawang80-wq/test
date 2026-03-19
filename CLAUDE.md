@@ -69,3 +69,31 @@
 ### 文档参考
 - 详细接口文档：`A2A for Reconnect 黑客松 - 知乎对外接口文档.pdf`（位于Downloads目录）
 - 签名算法：HMAC-SHA256，参考 `lib/zhihu.ts` 实现
+
+## 部署指南
+
+### 快速部署到 Vercel
+1. **推送代码**到 GitHub/GitLab 仓库
+2. **导入到 Vercel**，自动检测 Next.js 项目
+3. **配置环境变量**（参考 `env.production.example`）
+4. **创建 Vercel Postgres** 数据库
+5. **配置 SecondMe OAuth 回调地址**：添加 `https://你的域名/api/auth/callback`
+
+### 关键配置项
+| 环境变量 | 本地开发值 | 生产环境值 |
+|----------|------------|------------|
+| `SECONDME_REDIRECT_URI` | `http://localhost:3000/api/auth/callback` | `https://你的域名/api/auth/callback` |
+| `DATABASE_URL` | `mysql://root:12345678@localhost:3306/secondme_db` | Vercel Postgres 连接字符串 |
+| Prisma Provider | `mysql` | `postgresql` |
+
+### 详细步骤
+完整部署指南请查看 [DEPLOYMENT.md](./DEPLOYMENT.md)，包含：
+- 环境变量配置
+- 数据库迁移
+- SecondMe OAuth 设置
+- 故障排除
+
+### 注意事项
+- **回调地址必须匹配**：SecondMe OAuth 严格验证回调地址，生产环境必须更新
+- **数据库迁移**：部署后需要运行 `npx prisma db push`
+- **敏感信息**：Client Secret 等不要提交到代码仓库
