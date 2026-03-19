@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ArrowLeftIcon, BookmarkIcon, ShareIcon, PencilIcon, TrashIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
@@ -60,7 +60,7 @@ const relatedFrameworks = [
   }
 ];
 
-export default function KnowledgeFrameworkDetailsPage() {
+function KnowledgeFrameworkDetailsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const frameworkId = searchParams.get('id');
@@ -554,5 +554,22 @@ export default function KnowledgeFrameworkDetailsPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function KnowledgeFrameworkDetailsPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="bg-white rounded-xl shadow-lg p-8 text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="text-gray-600 mt-4">加载中...</p>
+          </div>
+        </div>
+      </div>
+    }>
+      <KnowledgeFrameworkDetailsContent />
+    </Suspense>
   );
 }
