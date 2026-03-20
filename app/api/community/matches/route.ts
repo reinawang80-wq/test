@@ -106,12 +106,12 @@ export async function GET(request: Request) {
     });
 
     // 计算匹配结果
-    const matches = await Promise.all(otherUsers.map(async (user) => {
+    const matches = await Promise.all(otherUsers.map(async (user: any) => {
       const { score, reason } = calculateMatchScore(currentUserPlans, user.lifePlans);
       const tags = extractTagsFromBio(user.bio);
 
       // 提取人生规划用于展示
-      const lifePlans = user.lifePlans.slice(0, 2).map(plan => ({
+      const lifePlans = user.lifePlans.slice(0, 2).map((plan: any) => ({
         year: plan.year,
         title: plan.title
       }));
@@ -139,15 +139,15 @@ export async function GET(request: Request) {
     // 根据筛选条件过滤
     let filteredMatches = matches;
     if (filter === 'high') {
-      filteredMatches = matches.filter(m => m.matchScore >= 85);
+      filteredMatches = matches.filter((m: any) => m.matchScore >= 85);
     } else if (filter === 'medium') {
-      filteredMatches = matches.filter(m => m.matchScore >= 70 && m.matchScore < 85);
+      filteredMatches = matches.filter((m: any) => m.matchScore >= 70 && m.matchScore < 85);
     } else if (filter === 'low') {
-      filteredMatches = matches.filter(m => m.matchScore < 70);
+      filteredMatches = matches.filter((m: any) => m.matchScore < 70);
     }
 
     // 根据匹配分数排序（降序）
-    filteredMatches.sort((a, b) => b.matchScore - a.matchScore);
+    filteredMatches.sort((a: any, b: any) => b.matchScore - a.matchScore);
 
     // 应用分页
     const paginatedMatches = filteredMatches.slice(offset, offset + limit);

@@ -60,7 +60,7 @@ export async function GET(request: Request) {
     ]);
 
     // 解析JSON tags
-    const notesWithParsedTags = notes.map(note => ({
+    const notesWithParsedTags = notes.map((note: any) => ({
       ...note,
       tags: note.tags ? JSON.parse(note.tags as string) : [],
     }));

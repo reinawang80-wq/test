@@ -80,7 +80,7 @@ export async function GET(request: Request) {
     ]);
 
     // 解析JSON字段
-    const frameworksWithParsedData = frameworks.map(framework => ({
+    const frameworksWithParsedData = frameworks.map((framework: any) => ({
       ...framework,
       content: framework.content ? JSON.parse(framework.content as string) : null,
       tags: framework.tags ? JSON.parse(framework.tags as string) : [],
