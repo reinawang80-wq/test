@@ -46,6 +46,11 @@ function extractTagsFromBio(bio: string | null): string[] {
 export async function GET(request: Request) {
   try {
     let currentUser = await getCurrentUser();
+    console.log('[Matches API] Current user:', {
+      hasUser: !!currentUser,
+      userId: currentUser?.userId?.substring(0, 8) + '...',
+      env: process.env.NODE_ENV
+    });
     let currentUserId = currentUser?.userId;
 
     // 开发环境：如果没有登录用户，使用模拟用户进行测试
@@ -69,6 +74,7 @@ export async function GET(request: Request) {
       }
     }
 
+    console.log('[Matches API] currentUserId check:', { currentUserId, env: process.env.NODE_ENV });
     if (!currentUserId) {
       return NextResponse.json(
         { code: 401, message: '未登录' },

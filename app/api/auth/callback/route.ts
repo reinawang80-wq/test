@@ -128,6 +128,7 @@ export async function GET(request: Request) {
       secure: process.env.NODE_ENV === 'production',
       maxAge: 60 * 60 * 24 * 7, // 7天
       path: '/',
+      sameSite: 'lax',
     });
 
     cookieStore.set('access_token', tokenData.access_token, {

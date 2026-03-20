@@ -122,7 +122,9 @@ export default function CommunityPage() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`/api/community/matches?filter=${filterType}`);
+      const response = await fetch(`/api/community/matches?filter=${filterType}`, {
+        credentials: 'include'
+      });
       if (!response.ok) {
         throw new Error(`获取数据失败: ${response.status}`);
       }

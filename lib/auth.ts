@@ -169,6 +169,16 @@ export async function getCurrentUser() {
   const userId = cookieStore.get('user_id')?.value;
   const accessToken = cookieStore.get('access_token')?.value;
 
+  // 调试日志
+  console.log('[Auth Debug] getCurrentUser called:', {
+    env: process.env.NODE_ENV,
+    hasUserId: !!userId,
+    hasAccessToken: !!accessToken,
+    userIdLength: userId?.length || 0,
+    accessTokenLength: accessToken?.length || 0,
+    cookies: Array.from(cookieStore.getAll()).map(c => c.name)
+  });
+
   if (!userId || !accessToken) {
     // 开发环境下，如果未登录，尝试使用数据库中的第一个用户（仅用于测试）
     if (process.env.NODE_ENV === 'development') {
@@ -188,9 +198,15 @@ export async function getCurrentUser() {
         console.error('[DEV] Failed to get fallback user:', error);
       }
     }
+    console.log('[Auth Debug] No valid cookies found, returning null');
     return null;
   }
 
+  console.log('[Auth Debug] Returning user:', {
+    userIdLength: userId.length,
+    accessTokenLength: accessToken.length,
+    userIdPrefix: userId.substring(0, 8) + '...'
+  });
   return { userId, accessToken };
 }
 
