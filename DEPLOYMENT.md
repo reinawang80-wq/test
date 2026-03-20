@@ -105,6 +105,33 @@ vercel --prod
 3. 检查数据库连接
 4. 验证各功能模块
 
+### 步骤 7：配置验证（重要）
+
+部署后，通过以下方式验证配置是否正确：
+
+**方法 A：通过 API 端点检查**
+访问以下 URL 查看配置状态：
+```
+https://你的域名/api/config/check
+```
+
+**方法 B：命令行检查（需要 Vercel CLI）**
+```bash
+# 拉取环境变量到本地
+vercel env pull
+
+# 运行配置检查
+npm run config:check
+```
+
+**期望的配置状态：**
+- ✅ `SECONDME_REDIRECT_URI`: 应该是 `https://你的域名/api/auth/callback`
+- ✅ `DATABASE_URL`: 应该是 Neon Postgres 连接字符串（非本地地址）
+- ✅ `SECONDME_CLIENT_SECRET`: 已设置（非示例值）
+- ✅ 数据库连接状态: "connected"
+
+如果看到配置错误，请更新 Vercel 环境变量并重新部署。
+
 ## 故障排除
 
 ### 常见问题 1：OAuth 登录失败

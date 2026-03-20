@@ -70,6 +70,30 @@
 - 详细接口文档：`A2A for Reconnect 黑客松 - 知乎对外接口文档.pdf`（位于Downloads目录）
 - 签名算法：HMAC-SHA256，参考 `lib/zhihu.ts` 实现
 
+## 数据库配置
+
+### 当前配置状态
+| 环境 | 数据库类型 | Prisma Provider | 状态 |
+|------|------------|-----------------|------|
+| 本地开发 | MySQL | `postgresql` (不匹配) | ⚠️ 需要调整 |
+| 生产环境 (Vercel) | PostgreSQL (Neon) | `postgresql` | ✅ 正确 |
+
+### 解决方案
+1. **推荐方案**：本地切换到 PostgreSQL（使用 Docker）
+   ```bash
+   # 启动 PostgreSQL 容器
+   docker-compose up -d
+
+   # 更新 .env.local 中的 DATABASE_URL
+   # DATABASE_URL=postgresql://postgres:postgres123@localhost:5432/secondme_db
+   ```
+
+2. **备选方案**：修改 Prisma Schema
+   - 将 `prisma/schema.prisma` 中的 `provider = "postgresql"` 改为 `provider = "mysql"`
+   - 重新生成客户端：`npx prisma generate`
+
+详细指南请查看 [DB-MIGRATION.md](./DB-MIGRATION.md)
+
 ## 部署指南
 
 ### 快速部署到 Vercel

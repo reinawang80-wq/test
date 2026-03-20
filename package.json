@@ -11,7 +11,10 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:push": "prisma db push",
     "prisma:studio": "prisma studio",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "config:check": "curl -s http://localhost:3000/api/config/check | jq . || echo '请先启动开发服务器 (npm run dev)'",
+    "config:check-json": "node -e \"const { getEnvironmentInfo, validateProductionConfig, getOAuthConfig } = require('./lib/config.js'); console.log(JSON.stringify({ environment: getEnvironmentInfo() }, null, 2))\" 2>/dev/null || echo '需要编译TypeScript，请运行 npm run build 或使用API端点'",
+    "config:test": "node scripts/test-config.js"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",

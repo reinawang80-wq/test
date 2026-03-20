@@ -156,12 +156,79 @@ export function getEndpoint(category: keyof SecondMeConfig['api']['endpoints'], 
 // 获取OAuth配置
 export function getOAuthConfig() {
   const config = getConfig();
-  return {
+
+  // 根据环境选择默认重定向URI
+  let defaultRedirectUri = 'http://localhost:3000/api/auth/callback';
+  if (process.env.NODE_ENV === 'production') {
+    // 生产环境应该使用HTTPS和正确的域名
+    // 这里提供一个更安全的默认值，但仍然期望环境变量覆盖
+    defaultRedirectUri = process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}/api/auth/callback`
+      : 'https://your-production-domain.com/api/auth/callback';
+  }
+
+  const oauthConfig = {
     clientId: process.env.SECONDME_CLIENT_ID || config.app.client_id,
     clientSecret: process.env.SECONDME_CLIENT_SECRET || '',
-    redirectUri: process.env.SECONDME_REDIRECT_URI || 'http://localhost:3000/api/auth/callback',
+    redirectUri: process.env.SECONDME_REDIRECT_URI || defaultRedirectUri,
     authorizeUrl: config.api.endpoints.oauth.authorize,
     tokenUrl: config.api.endpoints.oauth.token,
     refreshUrl: config.api.endpoints.oauth.refresh,
+  };
+
+  // 生产环境配置验证
+  if (process.env.NODE_ENV === 'production') {
+    validateProductionConfig(oauthConfig);
+  }
+
+  return oauthConfig;
+}
+
+// 验证生产环境配置
+export function validateProductionConfig(config: any = null) {
+  const oauthConfig = config || getOAuthConfig();
+  const errors: string[] = [];
+
+  if (!oauthConfig.clientId || oauthConfig.clientId.includes('your_client_id')) {
+    errors.push('SECONDME_CLIENT_ID 未正确配置');
+  }
+
+  if (!oauthConfig.clientSecret || oauthConfig.clientSecret.includes('your_client_secret')) {
+    errors.push('SECONDME_CLIENT_SECRET 未正确配置');
+  }
+
+  if (!oauthConfig.redirectUri ||
+      oauthConfig.redirectUri.includes('localhost') ||
+      oauthConfig.redirectUri.includes('your-project') ||
+      oauthConfig.redirectUri.includes('your-production-domain')) {
+    errors.push(`SECONDME_REDIRECT_URI 配置错误: ${oauthConfig.redirectUri}，应该使用生产环境HTTPS地址`);
+  }
+
+  if (!process.env.DATABASE_URL || process.env.DATABASE_URL.includes('localhost')) {
+    errors.push('DATABASE_URL 未正确配置，应该使用生产环境数据库连接');
+  }
+
+  if (errors.length > 0) {
+    console.error('🚨 生产环境配置错误:', errors);
+    // 在开发环境下只警告，在生产环境下可能需要更严格的处理
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error(`生产环境配置错误: ${errors.join(', ')}`);
+    }
+  } else {
+    console.log('✅ 生产环境配置验证通过');
+  }
+}
+
+// 获取当前环境信息
+export function getEnvironmentInfo() {
+  return {
+    nodeEnv: process.env.NODE_ENV || 'development',
+    vercelUrl: process.env.VERCEL_URL,
+    isProduction: process.env.NODE_ENV === 'production',
+    isDevelopment: process.env.NODE_ENV === 'development',
+    hasDatabaseUrl: !!process.env.DATABASE_URL,
+    databaseUrlPreview: process.env.DATABASE_URL ?
+      process.env.DATABASE_URL.substring(0, 50) + '...' : '未设置',
+    hasSecondMeConfig: !!(process.env.SECONDME_CLIENT_ID && process.env.SECONDME_CLIENT_SECRET),
   };
 }
