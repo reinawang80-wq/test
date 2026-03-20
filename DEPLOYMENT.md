@@ -40,17 +40,33 @@ git push
 | `ZHI_HU_APP_KEY` | 你的知乎 App Key |
 | `ZHI_HU_APP_SECRET` | 你的知乎 App Secret |
 
-### 步骤 3：创建 Vercel Postgres 数据库
-1. 在 Vercel 控制台，进入 "Storage" 标签页
-2. 点击 "Create Database"，选择 PostgreSQL
-3. 数据库创建后，Vercel 会自动注入 `DATABASE_URL` 环境变量
-4. **重要**：需要运行数据库迁移
+### 步骤 3：通过 Marketplace 添加 PostgreSQL 数据库
+Vercel 不再提供原生 PostgreSQL 服务，需要通过 Marketplace 集成第三方提供商。
+
+**推荐使用 Neon（Serverless Postgres）：**
+
+1. 在 Vercel 项目控制台，点击 **Marketplace** 标签
+2. 搜索 **Neon** 并点击 "Add Integration"
+3. 按提示创建 Neon 账户或登录现有账户
+4. 配置数据库：
+   - **区域建议**：`ap-southeast-1`（新加坡）或 `us-east-2`（美东）
+   - **数据库名**：`secondme_db`
+   - **分支**：默认创建 `main` 分支，后续可添加开发分支
+
+5. Neon 集成完成后会自动注入 `DATABASE_URL` 环境变量
+
+**备选方案：Supabase**
+- 同样在 Marketplace 搜索 Supabase
+- 创建项目后获取连接字符串
+
+6. **重要**：需要运行数据库迁移
    ```bash
    # 本地运行迁移（需要先设置 DATABASE_URL）
-   npx prisma migrate dev --name init
-
-   # 或者在生产环境运行
    npx prisma db push
+
+   # 或者在 Vercel 部署后通过 CLI 运行
+   vercel env pull
+   DATABASE_URL="你的连接字符串" npx prisma db push
    ```
 
 ### 步骤 4：配置 SecondMe OAuth 回调地址
@@ -103,9 +119,11 @@ vercel --prod
 - **症状**：页面显示数据库错误
 - **原因**：`DATABASE_URL` 未设置或格式错误
 - **解决方案**：
-  1. 确认 Vercel Postgres 已创建
-  2. 确认 `DATABASE_URL` 环境变量存在
-  3. 运行数据库迁移：`npx prisma db push`
+  1. 确认 Marketplace 中的 Neon/Supabase 集成已配置
+  2. 确认 `DATABASE_URL` 环境变量存在（Neon 会自动注入）
+  3. 检查连接字符串格式：`postgresql://user:pass@ep-xxxx.neon.tech/dbname`
+  4. 运行数据库迁移：`npx prisma db push`
+  5. 如果使用 Neon，确认数据库分支处于活动状态
 
 ### 常见问题 3：构建失败
 - **症状**：Vercel 部署构建失败
@@ -135,7 +153,7 @@ vercel --prod
 
 | 配置项 | 本地开发 | 生产环境 |
 |--------|----------|----------|
-| 数据库 | MySQL (localhost) | Vercel Postgres |
+| 数据库 | MySQL (localhost) | Neon Postgres (通过 Marketplace) |
 | 回调地址 | `http://localhost:3000/api/auth/callback` | `https://your-domain.com/api/auth/callback` |
 | 环境变量文件 | `.env.local` | Vercel 环境变量 |
 | Prisma Provider | `mysql` | `postgresql` |

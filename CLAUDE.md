@@ -76,14 +76,14 @@
 1. **推送代码**到 GitHub/GitLab 仓库
 2. **导入到 Vercel**，自动检测 Next.js 项目
 3. **配置环境变量**（参考 `env.production.example`）
-4. **创建 Vercel Postgres** 数据库
+4. **通过 Marketplace 添加 Neon Postgres** 数据库
 5. **配置 SecondMe OAuth 回调地址**：添加 `https://你的域名/api/auth/callback`
 
 ### 关键配置项
 | 环境变量 | 本地开发值 | 生产环境值 |
 |----------|------------|------------|
 | `SECONDME_REDIRECT_URI` | `http://localhost:3000/api/auth/callback` | `https://你的域名/api/auth/callback` |
-| `DATABASE_URL` | `mysql://root:12345678@localhost:3306/secondme_db` | Vercel Postgres 连接字符串 |
+| `DATABASE_URL` | `mysql://root:12345678@localhost:3306/secondme_db` | Neon Postgres 连接字符串 |
 | Prisma Provider | `mysql` | `postgresql` |
 
 ### 详细步骤
